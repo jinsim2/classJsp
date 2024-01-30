@@ -26,7 +26,7 @@
 	      한글 인코딩 방식을 UTF-8(유니코드) 방식으로 변경해야 한다!
 	--%>
 <!-- 	<form action="requestPro1.jsp" method="get"></form> -->
-	<form action="requestPro1.jsp" method="get">
+	<form action="requestPro1.jsp" method="post">
 		<table border="1">
 			<tr>
 				<th>이름</th>
