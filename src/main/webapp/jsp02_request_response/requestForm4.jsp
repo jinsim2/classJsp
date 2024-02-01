@@ -9,7 +9,8 @@
 <body>
 	<div align="center">
 		<h1>로그인</h1>
-		<form action="requestPro2.jsp" method="get">
+		<!-- 폼 태그를 통해 아이디와 패스워드를 입력받아 requestPro4.jsp 페이지 요청 -->
+		<form action="requestPro4.jsp" method="get">
 			<input type="text" placeholder="아이디" name="id"><br>
 			<input type="password" placeholder="패스워드" name="passwd"><br>
 			<!-- 체크박스에 value 속성 미 지정 시 체크하면 "on" 값 전달됨 -->
