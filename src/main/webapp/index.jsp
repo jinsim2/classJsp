@@ -8,5 +8,6 @@
 </head>
 <body>
 	<h1>index.jsp</h1>
+	<h1>7강 화이팅입니다!!</h1>
 </body>
 </html>
