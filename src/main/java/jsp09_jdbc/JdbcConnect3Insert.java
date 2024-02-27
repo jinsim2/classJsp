@@ -12,9 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Servlet implementation class JdbcConnect3Insert
- */
 @WebServlet("/JdbcConnect3_INSERT")
 public class JdbcConnect3Insert extends HttpServlet {
 	
@@ -41,6 +38,11 @@ public class JdbcConnect3Insert extends HttpServlet {
 		 *          실수 데이터를 교체하는 메서드 이름 : setDouble()
 		 */
 		
+		// DB 자원을 관리하는 Connection, PreparedStatement 등의 타입 변수 선언
+		// => finally 블록에서 접근하기 위함
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
 		try {
 			// 0단계. JDBC 연결에 필요한 문자열을 각각의 변수에 저장
 			String driver = "com.mysql.cj.jdbc.Driver";
@@ -55,7 +57,7 @@ public class JdbcConnect3Insert extends HttpServlet {
 			// 2단계. DB 연결
 			// => DB 연결 성공 시 java.sql.Connection 타입 객체 리턴됨
 			// => Connection 객체는 DB 접속 정보를 관리하는 객체
-			Connection con = DriverManager.getConnection(url, user, password);
+			con = DriverManager.getConnection(url, user, password);
 			System.out.println("DB 연결 성공!");
 			
 			/*
@@ -104,7 +106,7 @@ public class JdbcConnect3Insert extends HttpServlet {
 			// 2-1) SQL 구문 작성 시 문장 내의 데이터 부분을 만능문자(?)로 표기
 			//      => 문자열을 별도로 구별할 필요없이 무조건 ? 기호로 표시만 함
 			String sql = "INSERT INTO jsp09_student VALUES(?, ?)";
-			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt = con.prepareStatement(sql);
 			// 2-2) SQL 문장을 전달받아 관리하는 PreparedStatement 객체의
 			//      setXXX() 메서드를 호출하여 만능문자(?) 부분을 실제 데이터로 교체
 			//      => setXXX(index, data) 메서드의 XXX 은 교체할 데이터의 자바 데이터타입명
@@ -137,17 +139,27 @@ public class JdbcConnect3Insert extends HttpServlet {
 			int insertCount = pstmt.executeUpdate();
 			System.out.println("회원 추가(INSERT) 성공 - " + insertCount + "개 레코드");
 			
-			
-			
 		} catch (ClassNotFoundException e) {			
 			System.out.println("드라이버 로드 실패!");
 			e.printStackTrace();
 		} catch (SQLException e) {
 			System.out.println("DB 연결 실패!");
 			e.printStackTrace();
+		} finally {
+			try {
+				// finally 블록 : try 블록 내에서 예외(Exception) 발생 여부와 관계없이
+				//				  항상 마지막에 실행되는 블록(무조건 실행됨)
+				// 따라서, DB 자원 사용 후 반납하는 close() 메서드를 finally 블록에서
+				// 호출 시 예외 발생하더라도 무조건 자원 반환이 가능하다.
+				// finally 블록에서 호출 시 예외 발생하더라도 무조건 자원 반환이 가능하다!
+				// 이 때, 자원 반환 순서는 자원 생성 순서의 역순으로 반환
+				pstmt.close(); // PreparedStatement 객체 반납
+				con.close(); // Connection 객체 반납(닫기 = 자원 해제)
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		
-		
 		
 	}
 

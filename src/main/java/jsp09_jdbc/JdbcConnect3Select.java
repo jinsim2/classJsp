@@ -13,14 +13,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Servlet implementation class JdbcConnect3Insert
- */
 @WebServlet("/JdbcConnect3_SELECT")
 public class JdbcConnect3Select extends HttpServlet {
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("JdbcConnect3Update");
+		
+		// DB 자원을 관리하는 Connection, PreparedStatement 등의 타입 변수 선언
+		// => finally 블록에서 접근하기 위함
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		
 		try {
 			// 0단계. JDBC 연결에 필요한 문자열을 각각의 변수에 저장
@@ -34,7 +37,7 @@ public class JdbcConnect3Select extends HttpServlet {
 			System.out.println("드라이버 로드 성공!");
 			
 			// 2단계. DB 연결
-			Connection con = DriverManager.getConnection(url, user, password);
+			con = DriverManager.getConnection(url, user, password);
 			System.out.println("DB 연결 성공!");
 			
 			/*
@@ -46,14 +49,14 @@ public class JdbcConnect3Select extends HttpServlet {
 			// 3단계. SQL 구문 작성 및 전달
 			// jsp09_student 테이블 조회 - SELECT
 			String sql = "SELECT * FROM jsp09_student";
-			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt = con.prepareStatement(sql);
 			
 			System.out.println(pstmt);
 			
 			// 4단계. SQL 구문 실행 및 결과 처리
 			// => SELECT 구문 실행을 위해 PrepareedStatement 객체의 executeQuery() 메서드 호출
 			// => 조회 결과(테이블)가 java.sql.ResultSet 타입 객체로 리턴됨
-			ResultSet rs = pstmt.executeQuery();
+			rs = pstmt.executeQuery();
 			/*
 			 * SELECT 구문 성공 시 다음 형태의 테이블이 Result 타입 객체로 리턴됨
 			 * 조회 결과 테이블의 특정 레코드를 가리키는 포인터 역할을 커서(Cursor) 라고 함
@@ -136,9 +139,22 @@ public class JdbcConnect3Select extends HttpServlet {
 		} catch (SQLException e) {
 			System.out.println("DB 연결 실패!");
 			e.printStackTrace();
+		} finally {
+			try {
+				// finally 블록 : try 블록 내에서 예외(Exception) 발생 여부와 관계없이
+				//				  항상 마지막에 실행되는 블록(무조건 실행됨)
+				// 따라서, DB 자원 사용 후 반납하는 close() 메서드를 finally 블록에서
+				// 호출 시 예외 발생하더라도 무조건 자원 반환이 가능하다.
+				// finally 블록에서 호출 시 예외 발생하더라도 무조건 자원 반환이 가능하다!
+				// 이 때, 자원 반환 순서는 자원 생성 순서의 역순으로 반환
+				rs.close(); // ResultSet 객체 반환
+				pstmt.close(); // PreparedStatement 객체 반납
+				con.close(); // Connection 객체 반납(닫기 = 자원 해제)
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		
-		
 		
 	}
 

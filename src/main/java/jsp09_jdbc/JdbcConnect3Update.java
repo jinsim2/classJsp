@@ -12,14 +12,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Servlet implementation class JdbcConnect3Insert
- */
 @WebServlet("/JdbcConnect3_UPDATE")
-public class JdbcConnect3update extends HttpServlet {
+public class JdbcConnect3Update extends HttpServlet {
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("JdbcConnect3Select");
+		System.out.println("JdbcConnect3Update");
+		
+		// DB 자원을 관리하는 Connection, PreparedStatement 등의 타입 변수 선언
+		// => finally 블록에서 접근하기 위함
+		Connection con = null;
+		PreparedStatement pstmt = null;
 		
 		try {
 			// 0단계. JDBC 연결에 필요한 문자열을 각각의 변수에 저장
@@ -33,7 +35,7 @@ public class JdbcConnect3update extends HttpServlet {
 			System.out.println("드라이버 로드 성공!");
 			
 			// 2단계. DB 연결
-			Connection con = DriverManager.getConnection(url, user, password);
+			con = DriverManager.getConnection(url, user, password);
 			System.out.println("DB 연결 성공!");
 			
 			/*
@@ -48,7 +50,7 @@ public class JdbcConnect3update extends HttpServlet {
 			String name = "손흥민";
 			
 			String sql = "UPDATE jsp09_student SET name = ? WHERE idx = ?";
-			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt = con.prepareStatement(sql);
 			pstmt.setString(1, name);
 			pstmt.setInt(2, idx);
 			
@@ -63,9 +65,21 @@ public class JdbcConnect3update extends HttpServlet {
 		} catch (SQLException e) {
 			System.out.println("DB 연결 실패!");
 			e.printStackTrace();
+		} finally {
+			try {
+				// finally 블록 : try 블록 내에서 예외(Exception) 발생 여부와 관계없이
+				//				  항상 마지막에 실행되는 블록(무조건 실행됨)
+				// 따라서, DB 자원 사용 후 반납하는 close() 메서드를 finally 블록에서
+				// 호출 시 예외 발생하더라도 무조건 자원 반환이 가능하다.
+				// finally 블록에서 호출 시 예외 발생하더라도 무조건 자원 반환이 가능하다!
+				// 이 때, 자원 반환 순서는 자원 생성 순서의 역순으로 반환
+				pstmt.close(); // PreparedStatement 객체 반납
+				con.close(); // Connection 객체 반납(닫기 = 자원 해제)
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		
-		
 		
 	}
 
